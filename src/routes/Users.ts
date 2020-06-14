@@ -3,7 +3,8 @@ import { BAD_REQUEST, CREATED, OK } from 'http-status-codes';
 import { ParamsDictionary } from 'express-serve-static-core';
 
 import { paramMissingError } from '@shared/constants';
-
+import * as UserModel from '../model/Users';
+import logger from '@shared/Logger';
 // Init shared
 const router = Router();
 
@@ -22,16 +23,27 @@ router.get('/all', async (req: Request, res: Response) => {
  *                       Add One - "POST /api/users/add"
  ******************************************************************************/
 
-// router.post('/add', async (req: Request, res: Response) => {
-//     const { user } = req.body;
-//     if (!user) {
-//         return res.status(BAD_REQUEST).json({
-//             error: paramMissingError,
-//         });
-//     }
-//     await userDao.add(user);
-//     return res.status(CREATED).end();
-// });
+router.post('/add', async (req: Request, res: Response) => {
+    const { firstName, lastName, email } = req.body;
+
+    logger.info(JSON.stringify(req.body))
+    if (!firstName) {
+        logger.error('juice ')
+        return res.status(BAD_REQUEST).json({
+            error: paramMissingError,
+        });
+    }
+    UserModel.default.create({
+        firstName,
+        lastName,
+        email
+    }).then(result =>{
+        return result;
+    }).catch(err =>{
+        logger.error(err);
+    })
+    return res.status(CREATED).end();
+});
 
 
 /******************************************************************************
